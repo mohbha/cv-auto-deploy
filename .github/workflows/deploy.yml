@@ -17,6 +17,11 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
+      # --- DEBUG STEP ---
+      - name: List files to debug
+        run: ls -la
+      # ------------------
+
       - name: Compile LaTeX to PDF
         uses: xu-cheng/latex-action@v3
         with:
