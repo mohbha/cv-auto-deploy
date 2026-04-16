@@ -1,0 +1,46 @@
+«÷name: Build and Deploy CV
+
+on:
+  push:
+    branches:
+      - main
+
+# These permissions are mandatory to make the secure OIDC login work
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      # --- DEBUG STEP ---
+      - name: List files to debug
+        run: ls -la
+      # ------------------
+
+      - name: Compile LaTeX to PDF
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: resume.tex
+          # This action automatically generates a file named resume.pdf
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::594593752580:role/GitHubActions-CVSync-Role
+          aws-region: eu-north-1
+
+      - name: Upload PDF to S3
+        run: |
+          aws s3 cp resume.pdf s3://aws-buckettest-first/resume.pdf \
+            --content-type "application/pdf"
+
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id E2SBL3HXSCR988 \
+            --paths "/resume.pdf"

@@ -5,7 +5,6 @@ on:
     branches:
       - main
 
-# These permissions are mandatory to make the secure OIDC login work
 permissions:
   id-token: write
   contents: read
@@ -17,16 +16,18 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # --- DEBUG STEP ---
-      - name: List files to debug
-        run: ls -la
-      # ------------------
-
       - name: Compile LaTeX to PDF
         uses: xu-cheng/latex-action@v3
         with:
           root_file: resume.tex
-          # This action automatically generates a file named resume.pdf
+          # THIS IS THE MAGIC FIX: Forces the modern XeLaTeX engine
+          latexmk_use_xelatex: true
+
+      - name: Upload PDF for Preview (Artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cv-preview
+          path: resume.pdf
 
       - name: Configure AWS Credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
