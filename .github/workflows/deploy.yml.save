@@ -1,11 +1,10 @@
-«÷name: Build and Deploy CV
+name: Deploy CV to AWS
 
 on:
   push:
     branches:
       - main
 
-# These permissions are mandatory to make the secure OIDC login work
 permissions:
   id-token: write
   contents: read
@@ -16,17 +15,6 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
-
-      # --- DEBUG STEP ---
-      - name: List files to debug
-        run: ls -la
-      # ------------------
-
-      - name: Compile LaTeX to PDF
-        uses: xu-cheng/latex-action@v3
-        with:
-          root_file: resume.tex
-          # This action automatically generates a file named resume.pdf
 
       - name: Configure AWS Credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
